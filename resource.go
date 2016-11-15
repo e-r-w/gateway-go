@@ -15,6 +15,6 @@ type Resource struct {
 	Route          string
 }
 
-func (r Resource) WithRole(roleDef sparta.IAMRoleDefinition) {
+func (r *Resource) WithRole(roleDef sparta.IAMRoleDefinition) {
 	r.RoleDefinition = roleDef
 }

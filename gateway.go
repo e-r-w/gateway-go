@@ -9,7 +9,7 @@ import (
 )
 
 type Gateway struct {
-	Resources []Resource
+	Resources []*Resource
 }
 
 func (g Gateway) Bootstrap(stage, apiName string) {
@@ -32,15 +32,15 @@ func (g Gateway) Bootstrap(stage, apiName string) {
 		nil)
 }
 
-func (g Gateway) Get(route string, handler func(ctx Context, logger *logrus.Logger)) Resource {
+func (g Gateway) Get(route string, handler func(ctx *Context, logger *logrus.Logger)) *Resource {
 	return g.Route("GET", route, handler)
 }
 
-func (g Gateway) Post(route string, handler func(ctx Context, logger *logrus.Logger)) Resource {
+func (g Gateway) Post(route string, handler func(ctx *Context, logger *logrus.Logger)) *Resource {
 	return g.Route("POST", route, handler)
 }
 
-func (g Gateway) Route(method string, route string, handler func(ctx Context, logger *logrus.Logger)) Resource {
+func (g Gateway) Route(method string, route string, handler func(ctx *Context, logger *logrus.Logger)) *Resource {
 
 	wrapped := func(event *json.RawMessage, context *sparta.LambdaContext, w http.ResponseWriter, logger *logrus.Logger) {
 		wrappedCtx := Context{
@@ -48,7 +48,7 @@ func (g Gateway) Route(method string, route string, handler func(ctx Context, lo
 			LambdaContext:  context,
 			ResponseWriter: w,
 		}
-		handler(wrappedCtx, logger)
+		handler(&wrappedCtx, logger)
 	}
 
 	resource := Resource{
@@ -58,8 +58,8 @@ func (g Gateway) Route(method string, route string, handler func(ctx Context, lo
 		Function:       wrapped,
 	}
 
-	g.Resources = append(g.Resources, resource)
+	g.Resources = append(g.Resources, &resource)
 
-	return resource
+	return &resource
 
 }

@@ -14,10 +14,10 @@ type Context struct {
 	ResponseWriter http.ResponseWriter
 }
 
-func (ctx Context) JSON(object interface{}) {
+func (ctx *Context) JSON(object interface{}) {
 	json.NewEncoder(ctx.ResponseWriter).Encode(object)
 }
 
-func (ctx Context) String(object interface{}) {
+func (ctx *Context) String(object interface{}) {
 	fmt.Fprint(ctx.ResponseWriter, object)
 }
