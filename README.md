@@ -7,8 +7,6 @@ A wrapper around [sparta](http://gosparta.io/) to provide a [gin](https://gin-go
 ```go
 //main.go
 import (
-	"os"
-
 	"github.com/e-r-w/gateway-go"
   	"github.com/Sirupsen/logrus"
 	sparta "github.com/mweagle/Sparta"
