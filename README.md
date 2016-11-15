@@ -33,3 +33,28 @@ func main() {
 ```
 
 Then run & deploy just like you would with a regular sparta app!
+
+For comparison, a Gin app:
+```go
+import (
+	"github.com/gin-gonic/gin"
+)
+
+func main() {
+	app := gin.Default()
+
+	app.GET("/hello-world", func (c *gin.Context) {
+		c.String(http.StatusOK, "Hello World!")
+	})
+
+	app.POST("/hello-world", func (c *gin.Context) {
+		c.JSON(http.StatusOK, map[string]interface{}{
+			"foo": "bar",
+		})
+	}).
+
+	app.Run(":8080")
+}
+```
+
+The aim of this project is to attain some what of a parity between Gin to make it easy to migrate to serverless apps
