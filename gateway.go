@@ -12,7 +12,7 @@ type Gateway struct {
 	Resources []*Resource
 }
 
-func (g Gateway) Bootstrap(stage, apiName string) {
+func (g Gateway) Bootstrap(stage, apiName, description string) {
 
 	var allTheLambdas []*sparta.LambdaAWSInfo
 
@@ -26,7 +26,7 @@ func (g Gateway) Bootstrap(stage, apiName string) {
 	}
 
 	sparta.Main(apiName,
-		"Simple Sparta application that demonstrates core functionality",
+		description,
 		allTheLambdas,
 		nil,
 		nil)
