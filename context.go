@@ -8,16 +8,16 @@ import (
 	sparta "github.com/mweagle/Sparta"
 )
 
-type GatewayContext struct {
+type Context struct {
 	Request        *json.RawMessage
 	LambdaContext  *sparta.LambdaContext
 	ResponseWriter http.ResponseWriter
 }
 
-func (ctx GatewayContext) JSON(object interface{}) {
+func (ctx Context) JSON(object interface{}) {
 	json.NewEncoder(ctx.ResponseWriter).Encode(object)
 }
 
-func (ctx GatewayContext) String(object interface{}) {
+func (ctx Context) String(object interface{}) {
 	fmt.Fprint(ctx.ResponseWriter, object)
 }

@@ -32,18 +32,18 @@ func (g Gateway) Bootstrap(stage, apiName string) {
 		nil)
 }
 
-func (g Gateway) Get(route string, handler func(ctx GatewayContext, logger *logrus.Logger)) Resource {
+func (g Gateway) Get(route string, handler func(ctx Context, logger *logrus.Logger)) Resource {
 	return g.Route("GET", route, handler)
 }
 
-func (g Gateway) Post(route string, handler func(ctx GatewayContext, logger *logrus.Logger)) Resource {
+func (g Gateway) Post(route string, handler func(ctx Context, logger *logrus.Logger)) Resource {
 	return g.Route("POST", route, handler)
 }
 
-func (g Gateway) Route(method string, route string, handler func(ctx GatewayContext, logger *logrus.Logger)) Resource {
+func (g Gateway) Route(method string, route string, handler func(ctx Context, logger *logrus.Logger)) Resource {
 
 	wrapped := func(event *json.RawMessage, context *sparta.LambdaContext, w http.ResponseWriter, logger *logrus.Logger) {
-		wrappedCtx := GatewayContext{
+		wrappedCtx := Context{
 			Request:        event,
 			LambdaContext:  context,
 			ResponseWriter: w,
