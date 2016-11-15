@@ -29,7 +29,7 @@ func main() {
 		// add role here
 	})
 
-	app.Bootstrap("testing-stage", "my-new-api")
+	app.Bootstrap("testing-stage", "my-new-api", "my cool new api")
 }
 ```
 
