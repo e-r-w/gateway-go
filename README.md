@@ -9,7 +9,7 @@ import (
 	"os"
 
 	"github.com/e-r-w/gateway-go"
-  "github.com/Sirupsen/logrus"
+  	"github.com/Sirupsen/logrus"
 	sparta "github.com/mweagle/Sparta"
 )
 
