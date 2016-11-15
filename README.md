@@ -5,6 +5,7 @@ A wrapper around [sparta](http://gosparta.io/) to provide a [gin](https://gin-go
 ## Usage
 
 ```go
+//main.go
 import (
 	"os"
 
@@ -31,3 +32,5 @@ func main() {
 	app.Bootstrap("testing-stage", "my-new-api")
 }
 ```
+
+Then run & deploy just like you would with a regular sparta app!
