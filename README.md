@@ -25,7 +25,7 @@ func main() {
 		})
 	}).
 		WithRole(sparta.IAMRoleDefinition{
-			// add role here
+			// add role here for accessing AWS resources like DynamoDB, S3, RDS etc
 		})
 
 	app.Bootstrap("testing-stage", "my-new-api", "my cool new api")
