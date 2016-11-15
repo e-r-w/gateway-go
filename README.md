@@ -14,7 +14,7 @@ import (
 )
 
 func main() {
-	app := ServerlessApp{}
+	app := Gateway{}
 
 	app.Get("/hello-world", func (c GatewayContext, logger *logrus.Logger) {
 		c.String("Hello World!")
