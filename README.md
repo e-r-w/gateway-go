@@ -23,9 +23,10 @@ func main() {
 		c.JSON(map[string]interface{}{
 			"foo": "bar",
 		})
-	}).WithRole(sparta.IAMRoleDefinition{
-		// add role here
-	})
+	}).
+		WithRole(sparta.IAMRoleDefinition{
+			// add role here
+		})
 
 	app.Bootstrap("testing-stage", "my-new-api", "my cool new api")
 }
