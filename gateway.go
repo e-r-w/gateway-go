@@ -14,9 +14,11 @@ type Gateway struct {
 }
 
 // Bootstrap ...
-func (g Gateway) Bootstrap(stage, apiName, description string) {
+func (g Gateway) Bootstrap(stageName, apiName, description string) {
 
 	var allTheLambdas []*sparta.LambdaAWSInfo
+	apiStage := sparta.NewStage(stageName)
+	api := sparta.NewAPIGateway(apiName, apiStage)
 
 	for _, resource := range g.Resources {
 		lambda := sparta.NewLambda(resource.RoleDefinition, resource.Function, resource.Options)
@@ -24,8 +26,6 @@ func (g Gateway) Bootstrap(stage, apiName, description string) {
 			lambda.Decorator = resource.Decorator
 		}
 		allTheLambdas = append(allTheLambdas, lambda)
-		stage := sparta.NewStage(stage)
-		api := sparta.NewAPIGateway(apiName, stage)
 		apiGatewayResource, _ := api.NewResource(resource.Route, lambda)
 		apiGatewayResource.NewMethod(resource.Method, http.StatusOK)
 	}
@@ -33,7 +33,7 @@ func (g Gateway) Bootstrap(stage, apiName, description string) {
 	sparta.Main(apiName,
 		description,
 		allTheLambdas,
-		nil,
+		api,
 		nil)
 }
 
