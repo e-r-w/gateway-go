@@ -36,3 +36,8 @@ func (ctx *Context) Event() (sparta.APIGatewayLambdaJSONEvent, error) {
 	}
 	return lambdaEvent, nil
 }
+
+// Event ...
+func (ctx *Context) Error(err error) {
+	http.Error(ctx.ResponseWriter, err.Error(), http.StatusInternalServerError)
+}

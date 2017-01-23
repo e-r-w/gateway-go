@@ -20,9 +20,11 @@ func main() {
 	})
 
 	_ := app.Post("/hello-world", func (c *gateway.Context, logger *logrus.Logger) {
-		c.JSON(map[string]interface{}{
-			"foo": "bar",
-		})
+		resp, err := doSomething()
+		if err != nil {
+			ctx.Error(err)
+		}
+		ctx.JSON(resp)
 	}).
 		WithRole(sparta.IAMRoleDefinition{
 			// add role here for accessing AWS resources like DynamoDB, S3, RDS etc
