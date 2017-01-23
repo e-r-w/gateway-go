@@ -17,17 +17,17 @@ func main() {
 
 	app := gateway.NewGateway()
 
-	_ := app.Get("/hello-world", func (c *gateway.Context, logger *logrus.Logger) {
+	_ = app.Get("/hello-world", func (c *gateway.Context, logger *logrus.Logger) {
 		c.String("Hello World!")
 	})
 
-	_ := app.Post("/hello-world", func (c *gateway.Context, logger *logrus.Logger) {
+	_ = app.Post("/hello-world", func (c *gateway.Context, logger *logrus.Logger) {
 
 		resp, err := DoSomething()
 		if err != nil {
 			ctx.Error(err)
 		}
-		
+
 		ctx.JSON(resp)
 
 	}).
