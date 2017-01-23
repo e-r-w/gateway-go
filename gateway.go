@@ -71,3 +71,8 @@ func (g Gateway) Route(method string, route string, handler func(ctx *Context, l
 	return &resource
 
 }
+
+// NewGateway ...
+func NewGateway() Gateway {
+	return Gateway{}
+}

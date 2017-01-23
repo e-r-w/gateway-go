@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	app := gateway.Gateway{}
+	app := gateway.NewGateway()
 
 	_ := app.Get("/hello-world", func (c *gateway.Context, logger *logrus.Logger) {
 		c.String("Hello World!")

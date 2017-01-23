@@ -1,5 +1,4 @@
 package: github.com/e-r-w/gateway-go
-version: 1.0.1
 import:
 - package: github.com/Sirupsen/logrus
   version: ~0.11.0
