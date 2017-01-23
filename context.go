@@ -17,7 +17,10 @@ type Context struct {
 
 // JSON ...
 func (ctx *Context) JSON(object interface{}) {
-	json.NewEncoder(ctx.ResponseWriter).Encode(object)
+	ctx.ResponseWriter.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(ctx.ResponseWriter).Encode(object); err != nil {
+		http.Error(ctx.ResponseWriter, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 // String ...
