@@ -38,7 +38,7 @@ func main() {
 			// Add function options such as execution time or environment variables
 		}).
 		WithDecorator(func(/*...*/){
-			// Decorator function
+			// Decorator function, see http://gosparta.io/docs/dynamic_infrastructure/#template-decorators
 		})
 
 	app.Bootstrap(
@@ -66,9 +66,14 @@ func main() {
 	})
 
 	app.POST("/hello-world", func (c *gin.Context) {
-		c.JSON(http.StatusOK, map[string]interface{}{
-			"foo": "bar",
-		})
+
+		resp, err := DoSomething()
+		if err != nil {
+			ctx.Error(err)
+		}
+
+		c.JSON(http.StatusOK, resp)
+
 	}).
 
 	app.Run(":8080")
