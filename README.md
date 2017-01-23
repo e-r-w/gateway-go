@@ -17,11 +17,11 @@ func main() {
 
 	app := gateway.NewGateway()
 
-	_ = app.Get("/hello-world", func (c *gateway.Context, logger *logrus.Logger) {
+	app.Get("/hello-world", func (c *gateway.Context, logger *logrus.Logger) {
 		c.String("Hello World!")
 	})
 
-	_ = app.Post("/hello-world", func (c *gateway.Context, logger *logrus.Logger) {
+	app.Post("/hello-world", func (c *gateway.Context, logger *logrus.Logger) {
 
 		resp, err := DoSomething()
 		if err != nil {
