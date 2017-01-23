@@ -8,16 +8,21 @@ import (
 	sparta "github.com/mweagle/Sparta"
 )
 
+// Gateway ...
 type Gateway struct {
 	Resources []*Resource
 }
 
+// Bootstrap ...
 func (g Gateway) Bootstrap(stage, apiName, description string) {
 
 	var allTheLambdas []*sparta.LambdaAWSInfo
 
 	for _, resource := range g.Resources {
-		lambda := sparta.NewLambda(resource.RoleDefinition, resource.Function, nil)
+		lambda := sparta.NewLambda(resource.RoleDefinition, resource.Function, resource.Options)
+		if resource.Decorator != nil {
+			lambda.Decorator = resource.Decorator
+		}
 		allTheLambdas = append(allTheLambdas, lambda)
 		stage := sparta.NewStage(stage)
 		api := sparta.NewAPIGateway(apiName, stage)
@@ -32,14 +37,17 @@ func (g Gateway) Bootstrap(stage, apiName, description string) {
 		nil)
 }
 
+// Get ...
 func (g Gateway) Get(route string, handler func(ctx *Context, logger *logrus.Logger)) *Resource {
 	return g.Route("GET", route, handler)
 }
 
+// Post ...
 func (g Gateway) Post(route string, handler func(ctx *Context, logger *logrus.Logger)) *Resource {
 	return g.Route("POST", route, handler)
 }
 
+// Route ...
 func (g Gateway) Route(method string, route string, handler func(ctx *Context, logger *logrus.Logger)) *Resource {
 
 	wrapped := func(event *json.RawMessage, context *sparta.LambdaContext, w http.ResponseWriter, logger *logrus.Logger) {

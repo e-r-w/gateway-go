@@ -1,0 +1,7 @@
+package: github.com/e-r-w/gateway-go
+version: 1.0.0
+import:
+- package: github.com/Sirupsen/logrus
+  version: ~0.11.0
+- package: github.com/mweagle/Sparta
+  version: ~0.10.0

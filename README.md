@@ -8,27 +8,37 @@ A wrapper around [sparta](http://gosparta.io/) to provide a [gin](https://gin-go
 //main.go
 import (
 	"github.com/e-r-w/gateway-go"
-  	"github.com/Sirupsen/logrus"
+	"github.com/Sirupsen/logrus"
 	sparta "github.com/mweagle/Sparta"
 )
 
 func main() {
 	app := gateway.Gateway{}
 
-	app.Get("/hello-world", func (c *gateway.Context, logger *logrus.Logger) {
+	_ := app.Get("/hello-world", func (c *gateway.Context, logger *logrus.Logger) {
 		c.String("Hello World!")
 	})
 
-	app.Post("/hello-world", func (c *gateway.Context, logger *logrus.Logger) {
+	_ := app.Post("/hello-world", func (c *gateway.Context, logger *logrus.Logger) {
 		c.JSON(map[string]interface{}{
 			"foo": "bar",
 		})
 	}).
 		WithRole(sparta.IAMRoleDefinition{
 			// add role here for accessing AWS resources like DynamoDB, S3, RDS etc
+		}).
+		WithOptions(&sparta.LambdaFunctionOptions{
+			// Add function options such as execution time or environment variables
+		}).
+		WithDecorator(func(/*...*/){
+			// Decorator function
 		})
 
-	app.Bootstrap("testing-stage", "my-new-api", "my cool new api")
+	app.Bootstrap(
+		"testing-stage", // Stage name
+		"my-new-api", // API name
+		"my cool new api", // Description
+	)
 }
 ```
 
