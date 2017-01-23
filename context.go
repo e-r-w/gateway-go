@@ -10,7 +10,7 @@ import (
 
 // Context ...
 type Context struct {
-	Request        *json.RawMessage
+	RawEvent       *json.RawMessage
 	LambdaContext  *sparta.LambdaContext
 	ResponseWriter http.ResponseWriter
 }
@@ -26,4 +26,13 @@ func (ctx *Context) JSON(object interface{}) {
 // String ...
 func (ctx *Context) String(object interface{}) {
 	fmt.Fprint(ctx.ResponseWriter, object)
+}
+
+// Event ...
+func (ctx *Context) Event() (sparta.APIGatewayLambdaJSONEvent, error) {
+	var lambdaEvent sparta.APIGatewayLambdaJSONEvent
+	if err := json.Unmarshal([]byte(*ctx.RawEvent), &lambdaEvent); err != nil {
+		return lambdaEvent, err
+	}
+	return lambdaEvent, nil
 }

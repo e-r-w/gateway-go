@@ -52,7 +52,7 @@ func (g Gateway) Route(method string, route string, handler func(ctx *Context, l
 
 	wrapped := func(event *json.RawMessage, context *sparta.LambdaContext, w http.ResponseWriter, logger *logrus.Logger) {
 		wrappedCtx := Context{
-			Request:        event,
+			RawEvent:       event,
 			LambdaContext:  context,
 			ResponseWriter: w,
 		}
