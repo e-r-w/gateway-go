@@ -10,9 +10,11 @@ import (
 	"github.com/e-r-w/gateway-go"
 	"github.com/Sirupsen/logrus"
 	sparta "github.com/mweagle/Sparta"
+	gateway "github.com/e-r-w/gateway-go"
 )
 
 func main() {
+
 	app := gateway.NewGateway()
 
 	_ := app.Get("/hello-world", func (c *gateway.Context, logger *logrus.Logger) {
@@ -20,11 +22,14 @@ func main() {
 	})
 
 	_ := app.Post("/hello-world", func (c *gateway.Context, logger *logrus.Logger) {
-		resp, err := doSomething()
+
+		resp, err := DoSomething()
 		if err != nil {
 			ctx.Error(err)
 		}
+		
 		ctx.JSON(resp)
+
 	}).
 		WithRole(sparta.IAMRoleDefinition{
 			// add role here for accessing AWS resources like DynamoDB, S3, RDS etc
@@ -41,6 +46,7 @@ func main() {
 		"my-new-api", // API name
 		"my cool new api", // Description
 	)
+
 }
 ```
 
