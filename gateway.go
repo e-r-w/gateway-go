@@ -14,7 +14,7 @@ type Gateway struct {
 }
 
 // Bootstrap ...
-func (g Gateway) Bootstrap(stageName, apiName, description string) {
+func (g *Gateway) Bootstrap(stageName, apiName, description string) {
 
 	var allTheLambdas []*sparta.LambdaAWSInfo
 	apiStage := sparta.NewStage(stageName)
@@ -38,17 +38,17 @@ func (g Gateway) Bootstrap(stageName, apiName, description string) {
 }
 
 // Get ...
-func (g Gateway) Get(route string, handler func(ctx *Context, logger *logrus.Logger)) *Resource {
+func (g *Gateway) Get(route string, handler func(ctx *Context, logger *logrus.Logger)) *Resource {
 	return g.Route("GET", route, handler)
 }
 
 // Post ...
-func (g Gateway) Post(route string, handler func(ctx *Context, logger *logrus.Logger)) *Resource {
+func (g *Gateway) Post(route string, handler func(ctx *Context, logger *logrus.Logger)) *Resource {
 	return g.Route("POST", route, handler)
 }
 
 // Route ...
-func (g Gateway) Route(method string, route string, handler func(ctx *Context, logger *logrus.Logger)) *Resource {
+func (g *Gateway) Route(method string, route string, handler func(ctx *Context, logger *logrus.Logger)) *Resource {
 
 	wrapped := func(event *json.RawMessage, context *sparta.LambdaContext, w http.ResponseWriter, logger *logrus.Logger) {
 		wrappedCtx := Context{
@@ -73,6 +73,6 @@ func (g Gateway) Route(method string, route string, handler func(ctx *Context, l
 }
 
 // NewGateway ...
-func NewGateway() Gateway {
-	return Gateway{}
+func NewGateway() *Gateway {
+	return &Gateway{}
 }
