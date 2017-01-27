@@ -14,15 +14,19 @@ const (
 	AwsIam = "AWS_IAM"
 )
 
+// MethodDecorator ...
+type MethodDecorator func(*sparta.Method) *sparta.Method
+
 // Resource ...
 type Resource struct {
-	Function       func(event *json.RawMessage, context *sparta.LambdaContext, w http.ResponseWriter, logger *logrus.Logger)
-	RoleDefinition sparta.IAMRoleDefinition
-	Method         string
-	Route          string
-	Decorator      sparta.TemplateDecorator
-	Options        *sparta.LambdaFunctionOptions
-	Authorization  string
+	Function        func(event *json.RawMessage, context *sparta.LambdaContext, w http.ResponseWriter, logger *logrus.Logger)
+	RoleDefinition  sparta.IAMRoleDefinition
+	Method          string
+	Route           string
+	Decorator       sparta.TemplateDecorator
+	Options         *sparta.LambdaFunctionOptions
+	Authorization   string
+	MethodDecorator MethodDecorator
 }
 
 // WithRole ...
@@ -46,5 +50,11 @@ func (r *Resource) WithOptions(funcOpts *sparta.LambdaFunctionOptions) *Resource
 // WithAuthorization ...
 func (r *Resource) WithAuthorization(authorization string) *Resource {
 	r.Authorization = authorization
+	return r
+}
+
+// WithMethodDecorator ...
+func (r *Resource) WithMethodDecorator(decorator MethodDecorator) *Resource {
+	r.MethodDecorator = decorator
 	return r
 }

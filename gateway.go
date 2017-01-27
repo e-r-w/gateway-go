@@ -32,15 +32,20 @@ func (g *Gateway) Bootstrap() *Gateway {
 			lambda.Decorator = resource.Decorator
 		}
 		g.Lambdas = append(g.Lambdas, lambda)
+
 		apiGatewayResource, _ := g.API.NewResource(resource.Route, lambda)
 		g.APIGatewayResources = append(g.APIGatewayResources, apiGatewayResource)
+
+		var method *sparta.Method
 		if resource.Authorization == None {
-			method, _ := apiGatewayResource.NewMethod(resource.Method, http.StatusOK)
-			g.APIGatewayMethods = append(g.APIGatewayMethods, method)
+			method, _ = apiGatewayResource.NewMethod(resource.Method, http.StatusOK)
 		} else {
-			method, _ := apiGatewayResource.NewAuthorizedMethod(resource.Method, resource.Authorization, http.StatusOK)
-			g.APIGatewayMethods = append(g.APIGatewayMethods, method)
+			method, _ = apiGatewayResource.NewAuthorizedMethod(resource.Method, resource.Authorization, http.StatusOK)
 		}
+		if resource.MethodDecorator != nil {
+			method = resource.MethodDecorator(method)
+		}
+		g.APIGatewayMethods = append(g.APIGatewayMethods, method)
 	}
 
 	return g
