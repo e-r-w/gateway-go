@@ -10,36 +10,49 @@ import (
 
 // Gateway ...
 type Gateway struct {
-	Resources   []*Resource
-	CORSEnabled bool
+	Resources           []*Resource
+	Stage               *sparta.Stage
+	API                 *sparta.API
+	Lambdas             []*sparta.LambdaAWSInfo
+	APIName             string
+	Description         string
+	CORSEnabled         bool
+	APIGatewayResources []*sparta.Resource
+	APIGatewayMethods   []*sparta.Method
 }
 
 // Bootstrap ...
-func (g *Gateway) Bootstrap(stageName, apiName, description string) {
+func (g *Gateway) Bootstrap() *Gateway {
 
-	var allTheLambdas []*sparta.LambdaAWSInfo
-	apiStage := sparta.NewStage(stageName)
-	api := sparta.NewAPIGateway(apiName, apiStage)
-	api.CORSEnabled = g.CORSEnabled
+	g.API.CORSEnabled = g.CORSEnabled
 
 	for _, resource := range g.Resources {
 		lambda := sparta.NewLambda(resource.RoleDefinition, resource.Function, resource.Options)
 		if resource.Decorator != nil {
 			lambda.Decorator = resource.Decorator
 		}
-		allTheLambdas = append(allTheLambdas, lambda)
-		apiGatewayResource, _ := api.NewResource(resource.Route, lambda)
+		g.Lambdas = append(g.Lambdas, lambda)
+		apiGatewayResource, _ := g.API.NewResource(resource.Route, lambda)
+		g.APIGatewayResources = append(g.APIGatewayResources, apiGatewayResource)
 		if resource.Authorization == None {
-			apiGatewayResource.NewMethod(resource.Method, http.StatusOK)
+			method, _ := apiGatewayResource.NewMethod(resource.Method, http.StatusOK)
+			g.APIGatewayMethods = append(g.APIGatewayMethods, method)
 		} else {
-			apiGatewayResource.NewAuthorizedMethod(resource.Method, resource.Authorization, http.StatusOK)
+			method, _ := apiGatewayResource.NewAuthorizedMethod(resource.Method, resource.Authorization, http.StatusOK)
+			g.APIGatewayMethods = append(g.APIGatewayMethods, method)
 		}
 	}
 
-	sparta.Main(apiName,
-		description,
-		allTheLambdas,
-		api,
+	return g
+
+}
+
+// Start ...
+func (g *Gateway) Start() {
+	sparta.Main(g.APIName,
+		g.Description,
+		g.Lambdas,
+		g.API,
 		nil)
 }
 
@@ -80,6 +93,16 @@ func (g *Gateway) Route(method string, route string, handler func(ctx *Context, 
 }
 
 // NewGateway ...
-func NewGateway() *Gateway {
-	return &Gateway{}
+func NewGateway(stageName, apiName, description string) *Gateway {
+
+	apiStage := sparta.NewStage(stageName)
+	api := sparta.NewAPIGateway(apiName, apiStage)
+
+	return &Gateway{
+		Stage:       apiStage,
+		APIName:     apiName,
+		API:         api,
+		Description: description,
+	}
+
 }

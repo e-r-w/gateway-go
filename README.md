@@ -14,7 +14,11 @@ import (
 
 func main() {
 
-	app := gateway.NewGateway()
+	app := gateway.NewGateway(		
+		"testing-stage", // Stage name
+		"my-new-api", // API name
+		"my cool new api", // Description
+	)
 
 	app.Get("/hello-world", func (ctx *gateway.Context, logger *logrus.Logger) {
 		ctx.String("Hello World!")
@@ -45,11 +49,9 @@ func main() {
 
 	app.CORSEnabled = true // CORS is disabled by default
 
-	app.Bootstrap(
-		"testing-stage", // Stage name
-		"my-new-api", // API name
-		"my cool new api", // Description
-	)
+	app.
+		Bootstrap().
+		Start()
 
 }
 ```
