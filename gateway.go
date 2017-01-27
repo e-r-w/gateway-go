@@ -27,7 +27,11 @@ func (g *Gateway) Bootstrap(stageName, apiName, description string) {
 		}
 		allTheLambdas = append(allTheLambdas, lambda)
 		apiGatewayResource, _ := api.NewResource(resource.Route, lambda)
-		apiGatewayResource.NewMethod(resource.Method, http.StatusOK)
+		if resource.Authorization == None {
+			apiGatewayResource.NewMethod(resource.Method, http.StatusOK)
+		} else {
+			apiGatewayResource.NewAuthorizedMethod(resource.Method, resource.Authorization, http.StatusOK)
+		}
 	}
 
 	sparta.Main(apiName,
@@ -64,6 +68,7 @@ func (g *Gateway) Route(method string, route string, handler func(ctx *Context, 
 		Method:         method,
 		RoleDefinition: sparta.IAMRoleDefinition{},
 		Function:       wrapped,
+		Authorization:  None,
 	}
 
 	g.Resources = append(g.Resources, &resource)

@@ -8,6 +8,12 @@ import (
 	sparta "github.com/mweagle/Sparta"
 )
 
+// None ..
+const (
+	None   = "NONE"
+	AwsIam = "AWS_IAM"
+)
+
 // Resource ...
 type Resource struct {
 	Function       func(event *json.RawMessage, context *sparta.LambdaContext, w http.ResponseWriter, logger *logrus.Logger)
@@ -16,6 +22,7 @@ type Resource struct {
 	Route          string
 	Decorator      sparta.TemplateDecorator
 	Options        *sparta.LambdaFunctionOptions
+	Authorization  string
 }
 
 // WithRole ...
@@ -33,5 +40,11 @@ func (r *Resource) WithDecorator(template sparta.TemplateDecorator) *Resource {
 // WithOptions ...
 func (r *Resource) WithOptions(funcOpts *sparta.LambdaFunctionOptions) *Resource {
 	r.Options = funcOpts
+	return r
+}
+
+// WithAuthorization ...
+func (r *Resource) WithAuthorization(authorization string) *Resource {
+	r.Authorization = authorization
 	return r
 }
