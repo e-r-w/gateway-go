@@ -38,7 +38,12 @@ func main() {
 		}).
 		WithDecorator(func(/*...*/){
 			// Decorator function, see http://gosparta.io/docs/dynamic_infrastructure/#template-decorators
-		})
+		}).
+		WithAuthorization(
+			// Accepts gateway.AwsIam or gateway.None (defaults to None)
+		)
+
+	app.CORSEnabled = true // CORS is disabled by default
 
 	app.Bootstrap(
 		"testing-stage", // Stage name

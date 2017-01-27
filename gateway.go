@@ -10,7 +10,8 @@ import (
 
 // Gateway ...
 type Gateway struct {
-	Resources []*Resource
+	Resources   []*Resource
+	CORSEnabled bool
 }
 
 // Bootstrap ...
@@ -19,6 +20,7 @@ func (g *Gateway) Bootstrap(stageName, apiName, description string) {
 	var allTheLambdas []*sparta.LambdaAWSInfo
 	apiStage := sparta.NewStage(stageName)
 	api := sparta.NewAPIGateway(apiName, apiStage)
+	api.CORSEnabled = g.CORSEnabled
 
 	for _, resource := range g.Resources {
 		lambda := sparta.NewLambda(resource.RoleDefinition, resource.Function, resource.Options)
