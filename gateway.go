@@ -4,9 +4,10 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"fmt"
+
 	"github.com/Sirupsen/logrus"
 	sparta "github.com/mweagle/Sparta"
-	"fmt"
 )
 
 // Gateway ...
@@ -45,7 +46,7 @@ func (g *Gateway) Bootstrap() *Gateway {
 
 	lambda := sparta.NewLambda(g.RoleDefinition, func(event *json.RawMessage, context *sparta.LambdaContext, w http.ResponseWriter, logger *logrus.Logger) {
 		var lambdaEvent sparta.APIGatewayLambdaJSONEvent
-		if err := json.Unmarshal([]byte(event), &lambdaEvent); err != nil {
+		if err := json.Unmarshal([]byte(*event), &lambdaEvent); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -119,10 +120,10 @@ func (g *Gateway) Post(route string, handler func(ctx *Context, logger *logrus.L
 func (g *Gateway) Route(method string, route string, handler func(ctx *Context, logger *logrus.Logger)) *Resource {
 
 	resource := Resource{
-		Route:          route,
-		Method:         method,
-		Function:       handler,
-		Authorization:  None,
+		Route:         route,
+		Method:        method,
+		Function:      handler,
+		Authorization: None,
 	}
 
 	g.Resources = append(g.Resources, &resource)
@@ -130,7 +131,6 @@ func (g *Gateway) Route(method string, route string, handler func(ctx *Context, 
 	return &resource
 
 }
-
 
 // WithOptions ...
 func (g *Gateway) WithOptions(funcOpts *sparta.LambdaFunctionOptions) *Gateway {

@@ -1,9 +1,6 @@
 package gateway
 
 import (
-	"encoding/json"
-	"net/http"
-
 	"github.com/Sirupsen/logrus"
 	sparta "github.com/mweagle/Sparta"
 )
