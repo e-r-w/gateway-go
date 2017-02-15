@@ -42,9 +42,11 @@ func (g *Gateway) Bootstrap() *Gateway {
 		} else {
 			method, _ = apiGatewayResource.NewAuthorizedMethod(resource.Method, resource.Authorization, http.StatusOK)
 		}
+
 		if resource.MethodDecorator != nil {
 			method = resource.MethodDecorator(method)
 		}
+
 		g.APIGatewayMethods = append(g.APIGatewayMethods, method)
 	}
 
@@ -61,6 +63,12 @@ func (g *Gateway) Start() {
 		nil)
 }
 
+func (g *Gateway) DynamoPassThrough() *Resource {
+
+
+
+}
+
 // Get ...
 func (g *Gateway) Get(route string, handler func(ctx *Context, logger *logrus.Logger)) *Resource {
 	return g.Route("GET", route, handler)
@@ -74,22 +82,28 @@ func (g *Gateway) Post(route string, handler func(ctx *Context, logger *logrus.L
 // Route ...
 func (g *Gateway) Route(method string, route string, handler func(ctx *Context, logger *logrus.Logger)) *Resource {
 
+	resource := Resource{
+		Route:          route,
+		Method:         method,
+		RoleDefinition: sparta.IAMRoleDefinition{},
+		Authorization:  None,
+	}
+
 	wrapped := func(event *json.RawMessage, context *sparta.LambdaContext, w http.ResponseWriter, logger *logrus.Logger) {
 		wrappedCtx := Context{
 			RawEvent:       event,
 			LambdaContext:  context,
 			ResponseWriter: w,
 		}
+		for _, m := range resource.Middlewares {
+			m(&wrappedCtx, logger, func(){
+
+			})
+		}
 		handler(&wrappedCtx, logger)
 	}
 
-	resource := Resource{
-		Route:          route,
-		Method:         method,
-		RoleDefinition: sparta.IAMRoleDefinition{},
-		Function:       wrapped,
-		Authorization:  None,
-	}
+	resource.Function = wrapped
 
 	g.Resources = append(g.Resources, &resource)
 

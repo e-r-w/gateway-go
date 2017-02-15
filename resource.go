@@ -17,6 +17,8 @@ const (
 // MethodDecorator ...
 type MethodDecorator func(*sparta.Method) *sparta.Method
 
+type Middleware func(*Context, *logrus.Logger, func())
+
 // Resource ...
 type Resource struct {
 	Function        func(event *json.RawMessage, context *sparta.LambdaContext, w http.ResponseWriter, logger *logrus.Logger)
@@ -27,6 +29,7 @@ type Resource struct {
 	Options         *sparta.LambdaFunctionOptions
 	Authorization   string
 	MethodDecorator MethodDecorator
+	Middlewares 	[]Middleware
 }
 
 // WithRole ...
@@ -58,3 +61,10 @@ func (r *Resource) WithMethodDecorator(decorator MethodDecorator) *Resource {
 	r.MethodDecorator = decorator
 	return r
 }
+
+// WithMiddleware ...
+func (r *Resource) WithMiddleware(m Middleware) *Resource {
+	r.Middlewares = append(r.Middlewares, m)
+	return r
+}
+
