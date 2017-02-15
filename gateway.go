@@ -6,6 +6,7 @@ import (
 
 	"github.com/Sirupsen/logrus"
 	sparta "github.com/mweagle/Sparta"
+	"fmt"
 )
 
 // Gateway ...
@@ -13,12 +14,28 @@ type Gateway struct {
 	Resources           []*Resource
 	Stage               *sparta.Stage
 	API                 *sparta.API
-	Lambdas             []*sparta.LambdaAWSInfo
+	Lambda              *sparta.LambdaAWSInfo
 	APIName             string
 	Description         string
 	CORSEnabled         bool
 	APIGatewayResources []*sparta.Resource
 	APIGatewayMethods   []*sparta.Method
+	Options             *sparta.LambdaFunctionOptions
+	RoleDefinition      sparta.IAMRoleDefinition
+	Decorator           sparta.TemplateDecorator
+	routeMap            map[string]*sparta.Resource
+}
+
+func (g *Gateway) createOrFindResource(route string) (*sparta.Resource, error) {
+	for k, v := range g.routeMap {
+		if k == route {
+			return v, nil
+		}
+	}
+	apiGatewayResource, _ := g.API.NewResource(route, g.Lambda)
+	g.APIGatewayResources = append(g.APIGatewayResources, apiGatewayResource)
+	g.routeMap[route] = apiGatewayResource
+	return apiGatewayResource, nil
 }
 
 // Bootstrap ...
@@ -26,15 +43,40 @@ func (g *Gateway) Bootstrap() *Gateway {
 
 	g.API.CORSEnabled = g.CORSEnabled
 
-	for _, resource := range g.Resources {
-		lambda := sparta.NewLambda(resource.RoleDefinition, resource.Function, resource.Options)
-		if resource.Decorator != nil {
-			lambda.Decorator = resource.Decorator
+	lambda := sparta.NewLambda(g.RoleDefinition, func(event *json.RawMessage, context *sparta.LambdaContext, w http.ResponseWriter, logger *logrus.Logger) {
+		var lambdaEvent sparta.APIGatewayLambdaJSONEvent
+		if err := json.Unmarshal([]byte(event), &lambdaEvent); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
 		}
-		g.Lambdas = append(g.Lambdas, lambda)
+		// figure out the method
+		method := lambdaEvent.Method
+		// figure out the route
+		route := lambdaEvent.Context.ResourcePath
+		// invoke the right g.Resource function
+		for _, resource := range g.Resources {
+			if method == resource.Method && route == resource.Route {
+				wrappedCtx := Context{
+					Event:          &lambdaEvent,
+					LambdaContext:  context,
+					ResponseWriter: w,
+				}
+				resource.Function(&wrappedCtx, logger)
+				return
+			}
+		}
+		http.Error(w, fmt.Sprint("Unable to match route ", route, " with method ", method), http.StatusInternalServerError)
+	}, g.Options)
 
-		apiGatewayResource, _ := g.API.NewResource(resource.Route, lambda)
-		g.APIGatewayResources = append(g.APIGatewayResources, apiGatewayResource)
+	if g.Decorator != nil {
+		lambda.Decorator = g.Decorator
+	}
+
+	g.Lambda = lambda
+
+	for _, resource := range g.Resources {
+
+		apiGatewayResource, _ := g.createOrFindResource(resource.Route)
 
 		var method *sparta.Method
 		if resource.Authorization == None {
@@ -56,7 +98,9 @@ func (g *Gateway) Bootstrap() *Gateway {
 func (g *Gateway) Start() {
 	sparta.Main(g.APIName,
 		g.Description,
-		g.Lambdas,
+		[]*sparta.LambdaAWSInfo{
+			g.Lambda,
+		},
 		g.API,
 		nil)
 }
@@ -74,20 +118,10 @@ func (g *Gateway) Post(route string, handler func(ctx *Context, logger *logrus.L
 // Route ...
 func (g *Gateway) Route(method string, route string, handler func(ctx *Context, logger *logrus.Logger)) *Resource {
 
-	wrapped := func(event *json.RawMessage, context *sparta.LambdaContext, w http.ResponseWriter, logger *logrus.Logger) {
-		wrappedCtx := Context{
-			RawEvent:       event,
-			LambdaContext:  context,
-			ResponseWriter: w,
-		}
-		handler(&wrappedCtx, logger)
-	}
-
 	resource := Resource{
 		Route:          route,
 		Method:         method,
-		RoleDefinition: sparta.IAMRoleDefinition{},
-		Function:       wrapped,
+		Function:       handler,
 		Authorization:  None,
 	}
 
@@ -95,6 +129,25 @@ func (g *Gateway) Route(method string, route string, handler func(ctx *Context, 
 
 	return &resource
 
+}
+
+
+// WithOptions ...
+func (g *Gateway) WithOptions(funcOpts *sparta.LambdaFunctionOptions) *Gateway {
+	g.Options = funcOpts
+	return g
+}
+
+// WithRole ...
+func (g *Gateway) WithRole(roleDef sparta.IAMRoleDefinition) *Gateway {
+	g.RoleDefinition = roleDef
+	return g
+}
+
+// WithDecorator ...
+func (g *Gateway) WithDecorator(template sparta.TemplateDecorator) *Gateway {
+	g.Decorator = template
+	return g
 }
 
 // NewGateway ...

@@ -19,32 +19,11 @@ type MethodDecorator func(*sparta.Method) *sparta.Method
 
 // Resource ...
 type Resource struct {
-	Function        func(event *json.RawMessage, context *sparta.LambdaContext, w http.ResponseWriter, logger *logrus.Logger)
-	RoleDefinition  sparta.IAMRoleDefinition
+	Function        func(context *Context, logger *logrus.Logger)
 	Method          string
 	Route           string
-	Decorator       sparta.TemplateDecorator
-	Options         *sparta.LambdaFunctionOptions
 	Authorization   string
 	MethodDecorator MethodDecorator
-}
-
-// WithRole ...
-func (r *Resource) WithRole(roleDef sparta.IAMRoleDefinition) *Resource {
-	r.RoleDefinition = roleDef
-	return r
-}
-
-// WithDecorator ...
-func (r *Resource) WithDecorator(template sparta.TemplateDecorator) *Resource {
-	r.Decorator = template
-	return r
-}
-
-// WithOptions ...
-func (r *Resource) WithOptions(funcOpts *sparta.LambdaFunctionOptions) *Resource {
-	r.Options = funcOpts
-	return r
 }
 
 // WithAuthorization ...

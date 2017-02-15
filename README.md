@@ -2,6 +2,8 @@
 
 A wrapper around [sparta](http://gosparta.io/) to provide a [gin](https://gin-gonic.github.io/gin/) or [sinatra](http://www.sinatrarb.com/) like interface for deploying serverless apps written in golang.
 
+gateway-go combines http event lambda handlers into a single lambda function to help keep your lambda functions warm, minimizing the potential startup time of lambda functions. 
+
 ## Usage
 
 ```go
@@ -18,7 +20,16 @@ func main() {
 		"testing-stage", // Stage name
 		"my-new-api", // API name
 		"my cool new api", // Description
-	)
+	).
+			WithRole(sparta.IAMRoleDefinition{
+    			// add role here for accessing AWS resources like DynamoDB, S3, RDS etc
+    		}).
+    		WithOptions(&sparta.LambdaFunctionOptions{
+    			// Add function options such as execution time or environment variables
+    		}).
+    		WithDecorator(func(/*...*/){
+    			// Decorator function, see http://gosparta.io/docs/dynamic_infrastructure/#template-decorators
+    		})
 
 	app.Get("/hello-world", func (ctx *gateway.Context, logger *logrus.Logger) {
 		ctx.String("Hello World!")
@@ -34,15 +45,6 @@ func main() {
 		ctx.JSON(resp)
 
 	}).
-		WithRole(sparta.IAMRoleDefinition{
-			// add role here for accessing AWS resources like DynamoDB, S3, RDS etc
-		}).
-		WithOptions(&sparta.LambdaFunctionOptions{
-			// Add function options such as execution time or environment variables
-		}).
-		WithDecorator(func(/*...*/){
-			// Decorator function, see http://gosparta.io/docs/dynamic_infrastructure/#template-decorators
-		}).
 		WithAuthorization(
 			// Accepts gateway.AwsIam or gateway.None (defaults to None)
 		)
