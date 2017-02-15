@@ -33,6 +33,9 @@ func (g *Gateway) createOrFindResource(route string) (*sparta.Resource, error) {
 			return v, nil
 		}
 	}
+	if g.routeMap == nil {
+		g.routeMap = map[string]*sparta.Resource{}
+	}
 	apiGatewayResource, _ := g.API.NewResource(route, g.Lambda)
 	g.APIGatewayResources = append(g.APIGatewayResources, apiGatewayResource)
 	g.routeMap[route] = apiGatewayResource
