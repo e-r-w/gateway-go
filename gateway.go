@@ -25,6 +25,7 @@ type Gateway struct {
 	RoleDefinition      sparta.IAMRoleDefinition
 	Decorator           sparta.TemplateDecorator
 	routeMap            map[string]*sparta.Resource
+	Hooks	    	    *sparta.WorkflowHooks
 }
 
 func (g *Gateway) createOrFindResource(route string) (*sparta.Resource, error) {
@@ -100,13 +101,16 @@ func (g *Gateway) Bootstrap() *Gateway {
 
 // Start ...
 func (g *Gateway) Start() {
-	sparta.Main(g.APIName,
+	sparta.MainEx(
+		g.APIName,
 		g.Description,
 		[]*sparta.LambdaAWSInfo{
 			g.Lambda,
 		},
 		g.API,
-		nil)
+		nil,
+		g.Hooks,
+	)
 }
 
 // Get ...
@@ -152,6 +156,13 @@ func (g *Gateway) WithDecorator(template sparta.TemplateDecorator) *Gateway {
 	g.Decorator = template
 	return g
 }
+
+// WithHooks ...
+func (g *Gateway) WithHooks(hooks *sparta.WorkflowHooks) *Gateway {
+	g.Hooks = hooks
+	return g
+}
+
 
 // NewGateway ...
 func NewGateway(stageName, apiName, description string) *Gateway {
